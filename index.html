@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>КОНТРОЛЬНАЯ РАБОТА №1 - Демонология</title>
     <style>
-        /* Подключение пользовательских шрифтов */
         @font-face { font-family: 'Domaine Display Narrow Bold Italic'; src: local('Georgia'), serif; }
         @font-face { font-family: 'Domaine Display Narrow Medium'; src: local('Georgia'), serif; }
         @font-face { font-family: 'Famosa'; src: local('Times New Roman'), serif; }
@@ -19,12 +18,11 @@
             --green-correct: #2e8b57;
         }
 
-        /* Запрет выделения и копирования */
         body {
             margin: 0;
-            padding: 20px 0; /* Отступ для мобильных, чтобы не прилипало к краям экрана */
+            padding: 20px 0;
             font-family: 'Famosa', serif;
-            background-image: url('background.jpg'); /* Фон */
+            background-image: url('background.jpg');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -115,8 +113,8 @@
         /* Экраны */
         #start-screen, #quiz-screen, #result-screen { display: none; }
         #start-screen.active, #quiz-screen.active, #result-screen.active { display: block; }
-        
-        /* Стили для центрирования экрана "уже пройдено" */
+
+        /* Центрирование экрана "уже пройдено" */
         .done-screen {
             display: flex !important;
             flex-direction: column;
@@ -141,16 +139,14 @@
             background: rgba(30, 30, 30, 0.8);
             border-radius: 15px;
             padding: 30px;
-            /* Фиксируем высоту карточки */
-            height: 450px; 
+            height: 450px;
             border: 1px solid #333;
             display: flex;
             flex-direction: column;
-            overflow-y: auto; /* Прокрутка, если текст слишком длинный */
+            overflow-y: auto;
             box-sizing: border-box;
         }
 
-        /* Стили скроллбара для карточки */
         .question-card::-webkit-scrollbar { width: 6px; }
         .question-card::-webkit-scrollbar-track { background: transparent; }
         .question-card::-webkit-scrollbar-thumb { background: var(--dark-red); border-radius: 4px; }
@@ -234,7 +230,7 @@
             text-align: center;
             margin-bottom: 30px;
         }
-        
+
         .result-header h2 { font-size: 2rem; margin-bottom: 10px; }
         .result-header p { font-size: 1.2rem; margin: 5px 0; }
 
@@ -243,7 +239,7 @@
             overflow-y: auto;
             padding-right: 10px;
         }
-        
+
         .answers-list::-webkit-scrollbar { width: 8px; }
         .answers-list::-webkit-scrollbar-track { background: #111; }
         .answers-list::-webkit-scrollbar-thumb { background: var(--dark-red); border-radius: 4px; }
@@ -274,12 +270,68 @@
             padding: 15px 30px;
             border-radius: 5px;
             font-size: 1.1rem;
-            z-index: 1000;
+            z-index: 3000;
             display: none;
             box-shadow: 0 0 15px var(--neon-red);
             text-align: center;
             width: 80%;
             max-width: 400px;
+        }
+
+        /* --- МОДАЛЬНОЕ ОКНО ПАРОЛЯ --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-window {
+            background: var(--dark-bg);
+            border: 1px solid var(--neon-red);
+            border-radius: 15px;
+            padding: 35px 30px;
+            width: 90%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 0 25px rgba(255, 26, 26, 0.4);
+            animation: zoomIn 0.4s forwards;
+        }
+
+        .modal-window h2 {
+            font-size: 1.6rem;
+            margin-bottom: 15px;
+        }
+
+        .modal-window p {
+            font-size: 1.05rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            color: #bbb;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .modal-buttons button {
+            margin: 0;
+            padding: 12px 25px;
+            font-size: 1.05rem;
+            flex: 1;
+        }
+
+        .cancel-btn {
+            background: #1a1a1a;
+            border-color: #555;
         }
 
         /* --- АДАПТАЦИЯ ПОД СМАРТФОНЫ --- */
@@ -288,7 +340,7 @@
             h1 { font-size: 1.6rem; }
             h2 { font-size: 1.4rem; }
             .instruction { font-size: 1rem; }
-            
+
             .header-bar {
                 flex-direction: column;
                 align-items: center;
@@ -298,7 +350,7 @@
 
             .question-card {
                 padding: 20px;
-                height: 480px; /* Чуть больше высоты на мобильных для ответов */
+                height: 480px;
             }
 
             .question-text { font-size: 1.2rem; margin-bottom: 15px; }
@@ -307,7 +359,7 @@
             .nav-row { flex-direction: column; gap: 10px; }
             .nav-btn { width: 100%; font-size: 1rem; padding: 10px; }
             button { font-size: 1.1rem; }
-            
+
             .result-header h2 { font-size: 1.5rem; }
             .result-header p { font-size: 1rem; }
         }
@@ -319,7 +371,7 @@
     <div class="alert-box" id="alertBox">Сообщение</div>
 
     <div class="container">
-        
+
         <!-- СТАРТОВЫЙ ЭКРАН -->
         <div id="start-screen" class="active">
             <h1>КОНТРОЛЬНАЯ РАБОТА №1</h1>
@@ -342,7 +394,7 @@
                 <div id="progress">Вопрос 1 из 20</div>
                 <div id="timer">Осталось времени: 60:00</div>
             </div>
-            
+
             <div class="question-card zoom-in" id="q-card">
                 <div class="question-text" id="q-text">Текст вопроса</div>
                 <div class="options" id="q-options">
@@ -355,7 +407,6 @@
                     <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">&#8592; Назад</button>
                     <button class="nav-btn" id="next-btn" onclick="nextQuestion()">Далее &#8594;</button>
                 </div>
-                <!-- Кнопка завершения теперь видна всегда -->
                 <button class="nav-btn finish-btn" onclick="finishTest()">Завершить тест</button>
             </div>
         </div>
@@ -374,6 +425,19 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- МОДАЛЬНОЕ ОКНО ВВОДА ПАРОЛЯ -->
+    <div id="password-modal" class="modal-overlay" onclick="handleOverlayClick(event)">
+        <div class="modal-window">
+            <h2>ДВЕРЬ ЗАПЕЧАТАНА</h2>
+            <p>Произнесите заклинание, чтобы войти.</p>
+            <input type="text" id="retake-code" placeholder="Прошу пароль" autocomplete="off" onkeydown="if(event.key === 'Enter') unlockTest();">
+            <div class="modal-buttons">
+                <button onclick="unlockTest()">Войти</button>
+                <button class="cancel-btn" onclick="closeModal()">Отступить</button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -414,7 +478,11 @@
             // Проверка на прохождение
             if (localStorage.getItem("demonology_test_done")) {
                 const startScreen = document.getElementById('start-screen');
-                startScreen.innerHTML = "<h1>ВЫ УЖЕ ПРОХОДИЛИ ТЕСТ</h1><p class='instruction'>Пересдача возможна только с разрешения преподавателя.</p>";
+                startScreen.innerHTML = `
+                    <h1>ВЫ УЖЕ ПРОХОДИЛИ ТЕСТ</h1>
+                    <p class='instruction' style="text-align: center;">Пересдача возможна только с разрешения преподавателя.</p>
+                    <button onclick="openPasswordModal()">Постучать в дверь</button>
+                `;
                 startScreen.classList.add('done-screen');
                 return;
             }
@@ -449,6 +517,36 @@
             setTimeout(() => box.style.display = 'none', 3500);
         }
 
+        // --- МОДАЛЬНОЕ ОКНО ПАРОЛЯ ---
+        function openPasswordModal() {
+            document.getElementById('password-modal').classList.add('active');
+            setTimeout(() => document.getElementById('retake-code').focus(), 300);
+        }
+
+        function closeModal() {
+            document.getElementById('password-modal').classList.remove('active');
+            document.getElementById('retake-code').value = "";
+        }
+
+        // Закрытие окна при клике на тёмный фон
+        function handleOverlayClick(event) {
+            if (event.target === event.currentTarget) closeModal();
+        }
+
+        function unlockTest() {
+            const codeInput = document.getElementById('retake-code').value;
+            // Пароль принимает как "Alohomora!", так и ввод без учёта регистра
+            if (codeInput.trim().toLowerCase() === "alohomora!") {
+                localStorage.removeItem("demonology_test_done"); // Снимаем блокировку
+                closeModal();
+                showAlert("Замок щёлкнул! Дверь открывается...");
+                setTimeout(() => location.reload(), 1500);
+            } else {
+                showAlert("Неверное заклинание! Дверь остаётся запертой.");
+                document.getElementById('retake-code').value = "";
+            }
+        }
+
         function startTest() {
             const nameInput = document.getElementById('student-name').value.trim();
             if (nameInput.length < 3) {
@@ -459,13 +557,13 @@
             localStorage.setItem("demonology_student_name", studentName);
 
             // Подготовка вопросов
-            questions = JSON.parse(JSON.stringify(baseQuestions)); 
+            questions = JSON.parse(JSON.stringify(baseQuestions));
             shuffle(questions);
-            questions.forEach(q => shuffle(q.a)); 
+            questions.forEach(q => shuffle(q.a));
 
             document.getElementById('start-screen').classList.remove('active');
             document.getElementById('quiz-screen').classList.add('active');
-            
+
             startTimer();
             renderQuestion();
         }
@@ -476,10 +574,10 @@
                 let m = Math.floor(timeRemaining / 60);
                 let s = timeRemaining % 60;
                 document.getElementById('timer').innerText = `Осталось времени: ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
-                
+
                 if (timeRemaining <= 0) {
                     clearInterval(timerInterval);
-                    finishTest(true); 
+                    finishTest(true);
                 }
             }, 1000);
         }
@@ -487,13 +585,12 @@
         function renderQuestion() {
             const card = document.getElementById('q-card');
             const q = questions[currentIndex];
-            
+
             document.getElementById('progress').innerText = `Вопрос ${currentIndex + 1} из ${questions.length}`;
             document.getElementById('q-text').innerText = q.q;
 
             let optionsHtml = '';
             q.a.forEach((ans, index) => {
-                // Если ответ был сохранен ранее, он останется отмеченным
                 const isChecked = userAnswers[currentIndex] === index ? 'checked' : '';
                 optionsHtml += `
                     <label class="option-label">
@@ -504,18 +601,15 @@
             });
             document.getElementById('q-options').innerHTML = optionsHtml;
 
-            // Скрываем "Назад" на первом вопросе и "Далее" на последнем
             document.getElementById('prev-btn').style.visibility = (currentIndex === 0) ? 'hidden' : 'visible';
             document.getElementById('next-btn').style.visibility = (currentIndex === questions.length - 1) ? 'hidden' : 'visible';
-            
-            // Прокручиваем карточку вверх при смене вопроса
+
             card.scrollTop = 0;
 
-            // Анимация
             card.classList.remove('dissolve-out');
             card.classList.add('zoom-in');
             setTimeout(() => card.classList.remove('zoom-in'), 500);
-            
+
             isAnimating = false;
         }
 
@@ -544,7 +638,7 @@
             setTimeout(() => {
                 currentIndex += direction;
                 renderQuestion();
-            }, 450); 
+            }, 450);
         }
 
         function nextQuestion() {
@@ -561,14 +655,13 @@
                 if (unansweredIndex !== -1) {
                     showAlert("Вы ответили не на все вопросы! Возвращаемся к пропущенному.");
                     currentIndex = unansweredIndex;
-                    // Меняем без анимации растворения для скорости
                     renderQuestion();
                     return;
                 }
             }
 
             clearInterval(timerInterval);
-            localStorage.setItem("demonology_test_done", "true"); 
+            localStorage.setItem("demonology_test_done", "true");
             showResults();
         }
 
@@ -613,14 +706,14 @@
             document.getElementById('res-list').innerHTML = resultsHtml;
 
             emailText = `Итого: ${score}/20 (${percent}%)\n` + emailText;
-            
+
             sendEmailAutomatically(emailText, score);
         }
 
         function sendEmailAutomatically(text, score) {
             fetch("https://formsubmit.co/ajax/g.greyland@yandex.ru", {
                 method: "POST",
-                headers: { 
+                headers: {
                     'Content-Type': 'application/json',
                     'Accept': 'application/json'
                 },
