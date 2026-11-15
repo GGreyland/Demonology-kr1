@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КОНТРОЛЬНАЯ РАБОТА №1 - Демонология</title>
+    <style>
+        /* Подключение пользовательских шрифтов */
+        @font-face { font-family: 'Domaine Display Narrow Bold Italic'; src: local('Georgia'), serif; }
+        @font-face { font-family: 'Domaine Display Narrow Medium'; src: local('Georgia'), serif; }
+        @font-face { font-family: 'Famosa'; src: local('Times New Roman'), serif; }
+
+        :root {
+            --dark-bg: rgba(15, 15, 15, 0.95);
+            --neon-red: #ff1a1a;
+            --dark-red: #8b0000;
+            --burgundy: #800020;
+            --text-color: #dcdcdc;
+            --green-correct: #2e8b57;
+        }
+
+        /* Запрет выделения и копирования */
+        body {
+            margin: 0;
+            padding: 20px 0; /* Отступ для мобильных, чтобы не прилипало к краям экрана */
+            font-family: 'Famosa', serif;
+            background-image: url('background.jpg'); /* Фон */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            user-select: none;
+            -webkit-user-select: none;
+            box-sizing: border-box;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 900px;
+            background: var(--dark-bg);
+            border: 1px solid var(--dark-red);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 0 20px rgba(139, 0, 0, 0.4), inset 0 0 10px rgba(139, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        h1, h2 {
+            font-family: 'Domaine Display Narrow Bold Italic', serif;
+            text-align: center;
+            color: #fff;
+            text-shadow: 0 0 8px var(--neon-red);
+            margin-bottom: 20px;
+        }
+
+        .instruction {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+
+        .important-text {
+            color: var(--burgundy);
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(255, 255, 255, 0.2);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            background: #1a1a1a;
+            border: 1px solid var(--dark-red);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Famosa', serif;
+            font-size: 1.2rem;
+            box-sizing: border-box;
+            outline: none;
+            transition: box-shadow 0.3s;
+        }
+
+        input[type="text"]:focus {
+            box-shadow: 0 0 10px var(--dark-red);
+        }
+
+        button {
+            display: block;
+            margin: 0 auto;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #2a0000, #4a0000);
+            border: 1px solid var(--neon-red);
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Domaine Display Narrow Bold Italic', serif;
+            font-size: 1.3rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(255, 26, 26, 0.3);
+        }
+
+        button:hover {
+            background: linear-gradient(135deg, #4a0000, #6a0000);
+            box-shadow: 0 0 15px var(--neon-red);
+            transform: translateY(-2px);
+        }
+
+        /* Экраны */
+        #start-screen, #quiz-screen, #result-screen { display: none; }
+        #start-screen.active, #quiz-screen.active, #result-screen.active { display: block; }
+        
+        /* Стили для центрирования экрана "уже пройдено" */
+        .done-screen {
+            display: flex !important;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 50vh;
+            text-align: center;
+        }
+
+        /* Интерфейс теста */
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--dark-red);
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            font-family: 'Domaine Display Narrow Bold Italic', serif;
+            font-size: 1.2rem;
+        }
+
+        .question-card {
+            background: rgba(30, 30, 30, 0.8);
+            border-radius: 15px;
+            padding: 30px;
+            /* Фиксируем высоту карточки */
+            height: 450px; 
+            border: 1px solid #333;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto; /* Прокрутка, если текст слишком длинный */
+            box-sizing: border-box;
+        }
+
+        /* Стили скроллбара для карточки */
+        .question-card::-webkit-scrollbar { width: 6px; }
+        .question-card::-webkit-scrollbar-track { background: transparent; }
+        .question-card::-webkit-scrollbar-thumb { background: var(--dark-red); border-radius: 4px; }
+
+        .question-text {
+            font-family: 'Domaine Display Narrow Medium', serif;
+            font-size: 1.4rem;
+            margin-bottom: 25px;
+            color: #eaeaea;
+            flex-shrink: 0;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            flex-grow: 1;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #444;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-label:hover { border-color: var(--dark-red); background: #222; }
+        .option-label input { margin-right: 15px; cursor: pointer; accent-color: var(--dark-red); flex-shrink: 0;}
+
+        /* Навигация */
+        .navigation-wrapper {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .nav-btn {
+            margin: 0;
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            flex: 1;
+        }
+
+        .finish-btn {
+            background: var(--dark-red);
+            width: 100%;
+            margin: 0;
+        }
+
+        /* Анимации карточек */
+        .zoom-in { animation: zoomIn 0.5s forwards; }
+        .dissolve-out { animation: dissolveOut 0.5s forwards; }
+
+        @keyframes zoomIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        @keyframes dissolveOut {
+            0% { transform: scale(1); opacity: 1; filter: blur(0); }
+            100% { transform: scale(1.2); opacity: 0; filter: blur(10px); }
+        }
+
+        /* Экран результатов */
+        .result-header {
+            background: rgba(40, 0, 0, 0.6);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid var(--neon-red);
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .result-header h2 { font-size: 2rem; margin-bottom: 10px; }
+        .result-header p { font-size: 1.2rem; margin: 5px 0; }
+
+        .answers-list {
+            max-height: 50vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .answers-list::-webkit-scrollbar { width: 8px; }
+        .answers-list::-webkit-scrollbar-track { background: #111; }
+        .answers-list::-webkit-scrollbar-thumb { background: var(--dark-red); border-radius: 4px; }
+
+        .result-item {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-left: 5px solid gray;
+        }
+
+        .result-item.correct { border-left-color: var(--green-correct); }
+        .result-item.incorrect { border-left-color: var(--neon-red); }
+
+        .user-answer { font-weight: bold; margin-top: 10px; }
+        .correct .user-answer { color: var(--green-correct); }
+        .incorrect .user-answer { color: var(--neon-red); }
+
+        /* Всплывающие уведомления */
+        .alert-box {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark-red);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            z-index: 1000;
+            display: none;
+            box-shadow: 0 0 15px var(--neon-red);
+            text-align: center;
+            width: 80%;
+            max-width: 400px;
+        }
+
+        /* --- АДАПТАЦИЯ ПОД СМАРТФОНЫ --- */
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            h1 { font-size: 1.6rem; }
+            h2 { font-size: 1.4rem; }
+            .instruction { font-size: 1rem; }
+            
+            .header-bar {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+                font-size: 1rem;
+            }
+
+            .question-card {
+                padding: 20px;
+                height: 480px; /* Чуть больше высоты на мобильных для ответов */
+            }
+
+            .question-text { font-size: 1.2rem; margin-bottom: 15px; }
+            .option-label { font-size: 1rem; padding: 12px; }
+
+            .nav-row { flex-direction: column; gap: 10px; }
+            .nav-btn { width: 100%; font-size: 1rem; padding: 10px; }
+            button { font-size: 1.1rem; }
+            
+            .result-header h2 { font-size: 1.5rem; }
+            .result-header p { font-size: 1rem; }
+        }
+
+    </style>
+</head>
+<body oncontextmenu="return false;">
+
+    <div class="alert-box" id="alertBox">Сообщение</div>
+
+    <div class="container">
+        
+        <!-- СТАРТОВЫЙ ЭКРАН -->
+        <div id="start-screen" class="active">
+            <h1>КОНТРОЛЬНАЯ РАБОТА №1</h1>
+            <div class="instruction">
+                <p>Контрольный тест состоит из 20 вопросов. Каждый вопрос стоит 1 балл. В каждом задании Вам необходимо выбрать один правильный ответ.</p>
+                <p>Время прохождения теста ограничено - 1 час.</p>
+                <p>Количество попыток прохождения ограничено! Вы можете пройти тест только 1 раз.</p>
+                <p>Пожалуйста, убедитесь, что у Вас достаточно времени, чтобы пройти его до конца. Вернуться к выполнению повторно не получится.</p>
+                <p>Пересдача обязательна только при получении неудовлетворительной оценки, требующей пересдачи (от 0 до 4 правильных ответов).</p>
+                <p>В остальном пересдача возможно только в исключительных случаях, при этом от полученной при пересдаче оценки (при любой причине пересдачи!) будет сминусовано 2 балла. Для пересдачи отправьте преподавателю личную сову с просьбой открыть доступ к тесту. Просьба может быть отклонена на усмотрение преподавателя.</p>
+                <p class="important-text">Обязательно сделайте скрин результата и отправьте его в качестве ответа к контрольной работе.</p>
+            </div>
+            <input type="text" id="student-name" placeholder="Введите Ваше Имя и Фамилию...">
+            <button onclick="startTest()">Начать</button>
+        </div>
+
+        <!-- ЭКРАН ТЕСТА -->
+        <div id="quiz-screen">
+            <div class="header-bar">
+                <div id="progress">Вопрос 1 из 20</div>
+                <div id="timer">Осталось времени: 60:00</div>
+            </div>
+            
+            <div class="question-card zoom-in" id="q-card">
+                <div class="question-text" id="q-text">Текст вопроса</div>
+                <div class="options" id="q-options">
+                    <!-- Варианты ответов генерируются JS -->
+                </div>
+            </div>
+
+            <div class="navigation-wrapper">
+                <div class="nav-row">
+                    <button class="nav-btn" id="prev-btn" onclick="prevQuestion()">&#8592; Назад</button>
+                    <button class="nav-btn" id="next-btn" onclick="nextQuestion()">Далее &#8594;</button>
+                </div>
+                <!-- Кнопка завершения теперь видна всегда -->
+                <button class="nav-btn finish-btn" onclick="finishTest()">Завершить тест</button>
+            </div>
+        </div>
+
+        <!-- ЭКРАН РЕЗУЛЬТАТОВ -->
+        <div id="result-screen">
+            <h1>ОТПРАВЬТЕ СКРИН РЕЗУЛЬТАТА НА ПРОВЕРКУ!</h1>
+            <div class="result-header">
+                <h2 id="res-name">Имя Ученика</h2>
+                <p id="res-time">Оставшееся время: 00:00</p>
+                <p id="res-score">Баллов: 0 из 20</p>
+                <p id="res-percent">Процент правильных ответов: 0%</p>
+            </div>
+            <div class="answers-list" id="res-list">
+                <!-- Ответы генерируются JS -->
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // База вопросов
+        const baseQuestions = [
+            { q: "Демоны - это существа сверхъестественного происхождения, занимающие промежуточное состояние между:", a: [{ t: "ангелами и людьми", c: false }, { t: "богами и людьми", c: true }, { t: "богами и животными", c: false }, { t: "живыми и мёртвыми", c: false }] },
+            { q: "Какой из подходов к изучению демонов рассматривает их без привязки к культуре и религии, представляя как самостоятельных “существ”?", a: [{ t: "Религиозная демонология", c: false }, { t: "Фольклорная демонология", c: false }, { t: "Магонаучная демонология", c: true }, { t: "Классическая демонология", c: false }] },
+            { q: "Что можно сказать о возможности уничтожения демонов?", a: [{ t: "Все демоны могут быть уничтожены опытным демонологом при наличии необходимых артефактов", c: false }, { t: "Демонов практически невозможно уничтожить; исключение могут составлять лишь низшие демоны", c: true }, { t: "Уничтожение демонов является основной задачей демонолога, особенно в отношении именованных существ", c: false }, { t: "Демонов можно уничтожить, только изгнав их в Инферно с помощью эвокации", c: false }] },
+            { q: "Каким образом проявитель сущностей позволяет распознать демона?", a: [{ t: "Подсвечивает демонов синим светом, а окружающее пространство остаётся визуально неизменным.", c: false }, { t: "Подсвечивает демонов зелёным светом, тогда как всё остальное пространство видится красным.", c: false }, { t: "Делает бестелесных демонов полностью невидимыми, позволяя разглядеть только их физическую оболочку.", c: false }, { t: "Подсвечивает демонов красным светом, а окружающее пространство видится зелёным.", c: true }] },
+            { q: "В чём заключается различие между Адом и Инферно?", a: [{ t: "Инферно и Ад - это два названия одного и того же физического места, в котором обитают демоны и куда попадают души грешников.", c: false }, { t: "Ад - это изначальное место обитания демонов, а Инферно - измерение наказания, куда демонологи изгоняют особо опасных существ.", c: false }, { t: "Ад - конкретное физическое место для душ грешников, куда демоны могут попадать в качестве наказания, тогда как Инферно - их изначальное место обитания.", c: true }, { t: "Инферно - физическое пространство в глубинных слоях земной коры, тогда как Ад существует в параллельном магическом измерении.", c: false }] },
+            { q: "Почему против демонов нельзя использовать атакующие заклинания и сглазы?", a: [{ t: "Потому что они разрушают защитное поле пентаграммы, выпуская удерживаемого демона наружу.", c: false }, { t: "Потому что атакующая магия вызывает неконтролируемое деление демона на множество низших сущностей.", c: false }, { t: "Потому что негативное намерение, заложенное в таких заклинаниях, лишь подпитывает демона энергией.", c: true }, { t: "Потому что атакующие заклинания трансформируют низшего демона в именованного, многократно усиливая его мощь.", c: false }] },
+            { q: "Как протекает процесс самообразования демонов в Инферно?", a: [{ t: "Демоническая энергия накапливается в одной точке и при достижении критической массы разделяется на новые самостоятельные сгустки, что может занимать десятки и сотни лет.", c: true }, { t: "Первородные демоны целенаправленно делят собственную энергию на части, создавая новых демонов с заданными свойствами и способностями.", c: false }, { t: "Человеческие души, попавшие в Инферно после смерти, постепенно трансформируются в демоническую энергию и образуют новых демонов.", c: false }, { t: "Трещины между Инферно и нашим миром пропускают живую энергию, которая, смешиваясь с демонической, порождает новые особи.", c: false }] },
+            { q: "Куда попадает демон после уничтожения его физической оболочки в нашем мире?", a: [{ t: "Демон возвращается в Инферно, где его энергия рассеивается и вливается в общий энергетический фон пространства.", c: false }, { t: "Демон переходит в состояние небытия, поскольку никакая энергия не может существовать без физической оболочки.", c: false }, { t: "Демон попадает в Ад, поскольку из нашего мира путь для демона открыт только туда, а не обратно в Инферно.", c: true }, { t: "Демон остаётся в нашем мире в бестелесной форме и постепенно накапливает энергию для восстановления оболочки.", c: false }] },
+            { q: "Что из перечисленного НЕ является обязательным условием для ритуального создания демона высокоразвитым демоном?", a: [{ t: "Наличие жрецов - людей, выступающих проводниками созидающей энергии.", c: false }, { t: "Свежая душа, только что отделившаяся от тела, служащая катализатором живой энергии.", c: false }, { t: "Энергия разрушения, получаемая через катастрофы и бедствия в кратчайший срок.", c: false }, { t: "Наличие артефакта-сосуда для заточения созданного демона с целью стабилизации его формы.", c: true }] },
+            { q: "Почему полукровки могут оказаться сильнее чистокровных демонов?", a: [{ t: "Потому что полукровки наследуют магические способности обоих родителей, что удваивает их демоническую мощь.", c: false }, { t: "Потому что в полукровках, в отличие от чистокровных демонов, имеется душа, являющаяся источником огромной силы.", c: true }, { t: "Потому что полукровки способны существовать одновременно в Инферно и в нашем мире, черпая энергию из обоих пространств.", c: false }, { t: "Потому что полукровки не уязвимы для заклинаний изгнания, поскольку их человеческая половина защищает их от магического воздействия.", c: false }] },
+            { q: "Какие способы возникновения возможны для инфернальных демонов?", a: [{ t: "Самообразование, создание и перерождение - в зависимости от энергетических условий в Инферно.", c: false }, { t: "Самообразование и рождение - поскольку в Инферно присутствуют как энергия, так и физические формы.", c: false }, { t: "Все четыре способа, поскольку Инферно является первичным пространством демонического существования.", c: false }, { t: "Исключительно самообразование, поскольку в Инферно нет ни физической материи, ни человеческих душ.", c: true }] },
+            { q: "Что отличает эфироморфных демонов от других категорий по форме существования?", a: [{ t: "Они всегда бестелесны и способны лишь визуально имитировать физическую оболочку, неосязаемую на ощупь.", c: false }, { t: "Они изначально телесны, но могут менять свою физическую форму, а их истинный облик виден в отражении.", c: false }, { t: "Они изначально бестелесны, но могут принимать телесную форму и менять её; большинство демонов относятся именно к этой категории.", c: true }, { t: "Они изначально бестелесны, но приняли единственную неизменную телесную форму без возможности вернуться в эфирное состояние.", c: false }] },
+            { q: "Что можно утверждать о низших демонах?", a: [{ t: "Их кровь чёрная, они обладают именами и могут быть призваны опытными демонологами.", c: false }, { t: "Их кровь чёрная или оттенков зелёного, они не имеют имён и не поддаются призыву, поскольку не понимают речи.", c: true }, { t: "Их кровь красная, они физически слабы, но обладают мощными магическими способностями.", c: false }, { t: "Их кровь чёрная, они поддаются призыву, но всегда оказывают активное сопротивление воле призывателя.", c: false }] },
+            { q: "Какое утверждение верно в отношении первородных демонов?", a: [{ t: "Они поддаются призыву наиболее могущественными демонологами и регулярно появляются в мире людей.", c: false }, { t: "Они непобедимы, имеют имена, не поддаются призыву и не появляются в мире людей, за редкими исключениями, когда приходят сами и способны самостоятельно возвращаться в Инферно.", c: true }, { t: "Они являются слабейшей категорией демонов, утратившей большую часть своей силы со времён сотворения мира.", c: false }, { t: "Они могут быть уничтожены экзорцистами при помощи специализированных ритуалов и часто встречаются в Инферно.", c: false }] },
+            { q: "Почему демоны в Аду не испытывают насыщения, питаясь душами грешников?", a: [{ t: "Потому что души грешников содержат слишком мало энергии для поддержания демонической сущности.", c: false }, { t: "Потому что в Аду отсутствует живая созидающая энергия, и энергия душ накапливается в демоне, но не усваивается им.", c: true }, { t: "Потому что демоны в Аду находятся исключительно в бестелесном состоянии и физически не способны перерабатывать энергию душ.", c: false }, { t: "Потому что души в Аду постепенно утрачивают свою энергию, и к моменту поглощения она уже практически иссякает.", c: false }] },
+            { q: "Зачем демоны, не питающиеся человеческой плотью, всё равно убивают людей?", a: [{ t: "Для получения крови и органов, необходимых для поддержания стабильности их физической оболочки.", c: false }, { t: "Для создания трещин между мирами, поскольку массовая гибель людей ослабляет границу между измерениями.", c: false }, { t: "Ради страданий, агонии и эмоций, переживаемых человеком в момент смерти, которые служат им энергетической пищей.", c: true }, { t: "Для перерождения убитых людей в новых демонов, поскольку каждая насильственная смерть порождает демоническую сущность.", c: false }] },
+            { q: "Как питаются человеческие полукровки?", a: [{ t: "Исключительно энергией и душами, поскольку их демоническая часть с рождения подавляет человеческие потребности.", c: false }, { t: "Как обычные люди, но при преобладании демонической части постепенно начинают питаться также и энергией.", c: true }, { t: "Исключительно сырым мясом и кровью с самого рождения, независимо от соотношения человеческой и демонической природы.", c: false }, { t: "Как обычные люди, причём демоническая часть никак не влияет на их рацион на протяжении всей жизни.", c: false }] },
+            { q: "В чём заключается слабое место развитых демонов, несмотря на высокий уровень их организации?", a: [{ t: "Они не способны к физическому воздействию и полагаются исключительно на ментальные атаки, которые можно отразить защитным заклинанием.", c: false }, { t: "Они полностью зависят от своей физической оболочки и утрачивают все когнитивные способности при её разрушении.", c: false }, { t: "Они не способны к долгосрочному планированию и забывают о своих целях через несколько дней после начала охоты.", c: false }, { t: "Они прямолинейны и действуют наиболее предсказуемым путём, выбирая кратчайший маршрут к цели, что можно использовать против них.", c: true }] },
+            { q: "Что является основной мотивацией развитых демонов в рамках демонической “пирамиды потребностей”?", a: [{ t: "Исключительно биологическая энергия и плоть, поскольку они ещё не преодолели порог базового выживания и их разум работает только для насыщения.", c: false }, { t: "Неограниченная власть над вселенной и глобальное господство, поскольку вопросы выживания для них давно решены.", c: false }, { t: "Энергия, души, власть и территория; ими движет социальный голод и стремление к статусу в иерархии, а человек для них - ресурс.", c: true }, { t: "Исключительно души грешников, которые они собирают для перерождения новых демонов в Инферно и увеличения собственной численности.", c: false }] },
+            { q: "Какое разделение демонов по иерархии является единственным рабочим на данный момент?", a: [{ t: "Разделение на семь категорий по смертным грехам в соответствии с теорией П. Бинсфельда.", c: false }, { t: "Разделение на высших, средних и низших демонов, где средняя категория является плавающим понятием.", c: true }, { t: "Разделение на императоров, князей, герцогов, графов и маркизов по феодальной модели “Лемегетона”.", c: false }, { t: "Разделение на четыре категории по сторонам света, каждой из которых соответствует один из четырёх владык.", c: false }] }
+        ];
+
+        let questions = [];
+        let userAnswers = new Array(20).fill(null);
+        let currentIndex = 0;
+        let timeRemaining = 3600; // 1 час
+        let timerInterval;
+        let isAnimating = false;
+        let studentName = "";
+
+        // Инициализация при загрузке
+        window.onload = function() {
+            // Проверка на прохождение
+            if (localStorage.getItem("demonology_test_done")) {
+                const startScreen = document.getElementById('start-screen');
+                startScreen.innerHTML = "<h1>ВЫ УЖЕ ПРОХОДИЛИ ТЕСТ</h1><p class='instruction'>С данного устройства Вы уже проходили тест. Пересдача возможна только с разрешения преподавателя.</p>";
+                startScreen.classList.add('done-screen');
+                return;
+            }
+
+            // Загрузка сохраненного имени
+            const savedName = localStorage.getItem("demonology_student_name");
+            if (savedName) document.getElementById('student-name').value = savedName;
+
+            // Блокировка копирования (Ctrl+C, Ctrl+V, F12)
+            document.addEventListener('keydown', function(e) {
+                if(e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 'v')) e.preventDefault();
+                if(e.key === 'F12') e.preventDefault();
+            });
+        };
+
+        // Функция перемешивания массива
+        function shuffle(array) {
+            let currentIndex = array.length, randomIndex;
+            while (currentIndex != 0) {
+                randomIndex = Math.floor(Math.random() * currentIndex);
+                currentIndex--;
+                [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+            }
+            return array;
+        }
+
+        // Показ уведомлений
+        function showAlert(msg) {
+            const box = document.getElementById('alertBox');
+            box.innerText = msg;
+            box.style.display = 'block';
+            setTimeout(() => box.style.display = 'none', 3500);
+        }
+
+        function startTest() {
+            const nameInput = document.getElementById('student-name').value.trim();
+            if (nameInput.length < 3) {
+                showAlert("Пожалуйста, введите Ваше корректное имя.");
+                return;
+            }
+            studentName = nameInput;
+            localStorage.setItem("demonology_student_name", studentName);
+
+            // Подготовка вопросов
+            questions = JSON.parse(JSON.stringify(baseQuestions)); 
+            shuffle(questions);
+            questions.forEach(q => shuffle(q.a)); 
+
+            document.getElementById('start-screen').classList.remove('active');
+            document.getElementById('quiz-screen').classList.add('active');
+            
+            startTimer();
+            renderQuestion();
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                let m = Math.floor(timeRemaining / 60);
+                let s = timeRemaining % 60;
+                document.getElementById('timer').innerText = `Осталось времени: ${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    finishTest(true); 
+                }
+            }, 1000);
+        }
+
+        function renderQuestion() {
+            const card = document.getElementById('q-card');
+            const q = questions[currentIndex];
+            
+            document.getElementById('progress').innerText = `Вопрос ${currentIndex + 1} из ${questions.length}`;
+            document.getElementById('q-text').innerText = q.q;
+
+            let optionsHtml = '';
+            q.a.forEach((ans, index) => {
+                // Если ответ был сохранен ранее, он останется отмеченным
+                const isChecked = userAnswers[currentIndex] === index ? 'checked' : '';
+                optionsHtml += `
+                    <label class="option-label">
+                        <input type="radio" name="answer" value="${index}" ${isChecked} onchange="saveAnswer(${index})">
+                        ${ans.t}
+                    </label>
+                `;
+            });
+            document.getElementById('q-options').innerHTML = optionsHtml;
+
+            // Скрываем "Назад" на первом вопросе и "Далее" на последнем
+            document.getElementById('prev-btn').style.visibility = (currentIndex === 0) ? 'hidden' : 'visible';
+            document.getElementById('next-btn').style.visibility = (currentIndex === questions.length - 1) ? 'hidden' : 'visible';
+            
+            // Прокручиваем карточку вверх при смене вопроса
+            card.scrollTop = 0;
+
+            // Анимация
+            card.classList.remove('dissolve-out');
+            card.classList.add('zoom-in');
+            setTimeout(() => card.classList.remove('zoom-in'), 500);
+            
+            isAnimating = false;
+        }
+
+        function saveAnswer(index) {
+            userAnswers[currentIndex] = index;
+            checkAllAnswered();
+        }
+
+        function checkAllAnswered() {
+            if (!userAnswers.includes(null)) {
+                document.getElementById('progress').innerText = `Вы ответили на все вопросы!`;
+                document.getElementById('progress').style.color = 'var(--green-correct)';
+            } else {
+                document.getElementById('progress').innerText = `Вопрос ${currentIndex + 1} из ${questions.length}`;
+                document.getElementById('progress').style.color = 'var(--text-color)';
+            }
+        }
+
+        function changeQuestion(direction) {
+            if (isAnimating) return;
+            isAnimating = true;
+
+            const card = document.getElementById('q-card');
+            card.classList.add('dissolve-out');
+
+            setTimeout(() => {
+                currentIndex += direction;
+                renderQuestion();
+            }, 450); 
+        }
+
+        function nextQuestion() {
+            if (currentIndex < questions.length - 1) changeQuestion(1);
+        }
+
+        function prevQuestion() {
+            if (currentIndex > 0) changeQuestion(-1);
+        }
+
+        function finishTest(timeOut = false) {
+            if (!timeOut) {
+                const unansweredIndex = userAnswers.indexOf(null);
+                if (unansweredIndex !== -1) {
+                    showAlert("Вы ответили не на все вопросы! Возвращаемся к пропущенному.");
+                    currentIndex = unansweredIndex;
+                    // Меняем без анимации растворения для скорости
+                    renderQuestion();
+                    return;
+                }
+            }
+
+            clearInterval(timerInterval);
+            localStorage.setItem("demonology_test_done", "true"); 
+            showResults();
+        }
+
+        function showResults() {
+            document.getElementById('quiz-screen').classList.remove('active');
+            document.getElementById('result-screen').classList.add('active');
+
+            let score = 0;
+            let resultsHtml = '';
+            let emailText = `Ученик: ${studentName}\nРезультат:\n\n`;
+
+            questions.forEach((q, i) => {
+                const userAnsIndex = userAnswers[i];
+                let isCorrect = false;
+                let userText = "Нет ответа";
+
+                if (userAnsIndex !== null) {
+                    isCorrect = q.a[userAnsIndex].c;
+                    userText = q.a[userAnsIndex].t;
+                    if (isCorrect) score++;
+                }
+
+                resultsHtml += `
+                    <div class="result-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div><b>Вопрос ${i+1}:</b> ${q.q}</div>
+                        <div class="user-answer">Ваш ответ: ${userText}</div>
+                    </div>
+                `;
+
+                emailText += `Вопрос ${i+1}: ${q.q}\nОтвет: ${userText} (${isCorrect ? '+' : '-'})\n\n`;
+            });
+
+            const percent = Math.round((score / 20) * 100);
+            let timeUsed = 3600 - timeRemaining;
+            let mUsed = Math.floor(timeUsed / 60);
+            let sUsed = timeUsed % 60;
+
+            document.getElementById('res-name').innerText = studentName;
+            document.getElementById('res-time').innerText = `Затрачено времени: ${mUsed}:${sUsed < 10 ? '0'+sUsed : sUsed}`;
+            document.getElementById('res-score').innerText = `Баллов: ${score} из 20`;
+            document.getElementById('res-percent').innerText = `Процент правильных ответов: ${percent}%`;
+            document.getElementById('res-list').innerHTML = resultsHtml;
+
+            emailText = `Итого: ${score}/20 (${percent}%)\n` + emailText;
+            
+            sendEmailAutomatically(emailText, score);
+        }
+
+        function sendEmailAutomatically(text, score) {
+            fetch("https://formsubmit.co/ajax/g.greyland@yandex.ru", {
+                method: "POST",
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    _subject: `Ответы на КР1 - ${studentName} - Балл: ${score}`,
+                    name: studentName,
+                    message: text,
+                    _captcha: "false",
+                    _template: "basic"
+                })
+            })
+            .then(response => response.json())
+            .then(data => console.log("Отправлено преподавателю"))
+            .catch(error => console.error("Ошибка отправки", error));
+        }
+    </script>
+</body>
+</html>
